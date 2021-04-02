@@ -1,0 +1,51 @@
+---
+
+pipeline:
+  account: att-dev-llabs-io
+  application: afp
+  location: afp-test
+  name: dev-scep
+
+private:
+  - moniker: &moniker
+      app: afp
+      cluster: afp-scep-service
+      detail: service
+      stack: scep
+
+chute:
+  template: pipeline
+  docker_images: &docker_images
+    - name: locationlabs/cf_scep_service
+      account: docker-luft-avast-com
+  enable_triggers: true
+  trigger_tag_regex: ^[1-9][0-9]*[-][0-9a-f]{6,8}$
+  git_repo_name: ring.admin
+  primary_git_branch: master
+
+  config_maps:
+    - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/configmap.yml
+      name: scep-config
+
+  deployments:
+    - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/deployment.yml
+      name: afp-scep-service
+      moniker: *moniker
+      docker_images: *docker_images
+      config_maps:
+        - name: scep-config
+
+  ingresses:
+    - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/ingress.yml
+      name: scep
+      moniker: *moniker
+
+  services:
+    - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/service.yml
+      name: scep
+      moniker: *moniker
+
+  github_manifests:
+    - path: kube/att.kube.dev.llabs.io/afp-test/sealed_secrets/ios-mdm-ca_sealed.yaml
+      name: ios-mdm-ca
+      stage_name: deploy ios-mdm-ca sealed secret
