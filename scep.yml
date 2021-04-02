@@ -27,6 +27,8 @@ chute:
     - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/configmap.yml
       name: scep-config
 
+      refId: '2'
+      requisiteStageRefIds: []
   deployments:
     - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/deployment.yml
       name: afp-scep-service
@@ -35,17 +37,29 @@ chute:
       config_maps:
         - name: scep-config
 
+      refId: '5'
+      requisiteStageRefIds:
+        - '1'
+        - '2'
+        - '3'
+        - '4'
   ingresses:
     - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/ingress.yml
       name: scep
       moniker: *moniker
+      refId: '3'
+      requisiteStageRefIds: []
 
   services:
     - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/service.yml
       name: scep
       moniker: *moniker
+      refId: '4'
+      requisiteStageRefIds: []
 
   github_manifests:
     - path: kube/att.kube.dev.llabs.io/afp-test/sealed_secrets/ios-mdm-ca_sealed.yaml
       name: ios-mdm-ca
       stage_name: deploy ios-mdm-ca sealed secret
+      refId: '1'
+      requisiteStageRefIds: []
