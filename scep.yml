@@ -22,44 +22,19 @@ chute:
   trigger_tag_regex: ^[1-9][0-9]*[-][0-9a-f]{6,8}$
   git_repo_name: ring.admin
   primary_git_branch: master
+  helm_account: helm-ida-artifactory-dev
 
-  config_maps:
-    - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/configmap.yml
-      name: scep-config
-
-      refId: '2'
-      requisiteStageRefIds: []
-  deployments:
-    - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/deployment.yml
-      name: afp-scep-service
-      moniker: *moniker
+  helm_charts:
+    - name: scep
+      bake_stage_name: scep bake
+      deploy_stage_name: scep deploy
       docker_images: *docker_images
-      config_maps:
-        - name: scep-config
-
-      refId: '5'
-      requisiteStageRefIds:
+      moniker: *moniker
+      values_files:
+        - path: helm_values/att.kube.dev.llabs.io/afp-test/values.yaml
+        - path: helm_values/att.kube.dev.llabs.io/afp-test/scep/values.yaml
+      bake_refId: '1'
+      bake_requisiteStageRefIds: []
+      deploy_refId: '2'
+      deploy_requisiteStageRefIds:
         - '1'
-        - '2'
-        - '3'
-        - '4'
-  ingresses:
-    - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/ingress.yml
-      name: scep
-      moniker: *moniker
-      refId: '3'
-      requisiteStageRefIds: []
-
-  services:
-    - path: kube/att.kube.dev.llabs.io/microservices/scep_service/afp-test/service.yml
-      name: scep
-      moniker: *moniker
-      refId: '4'
-      requisiteStageRefIds: []
-
-  github_manifests:
-    - path: kube/att.kube.dev.llabs.io/afp-test/sealed_secrets/ios-mdm-ca_sealed.yaml
-      name: ios-mdm-ca
-      stage_name: deploy ios-mdm-ca sealed secret
-      refId: '1'
-      requisiteStageRefIds: []
